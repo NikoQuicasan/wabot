@@ -1,0 +1,41 @@
+services:
+  app:
+    image: chatwoot/chatwoot:latest
+    command: sleep infinity      # el setup.sh toma el control
+    volumes:
+      - ..:/workspace:cached
+    environment:
+      DATABASE_URL: postgresql://chatwoot:chatwoot@postgres:5432/chatwoot_dev
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY_BASE: dev_secret_key_base_para_codespaces
+      FRONTEND_URL: http://localhost:3000
+      RAILS_ENV: development
+      NODE_ENV: development
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - cw_dev
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: chatwoot
+      POSTGRES_PASSWORD: chatwoot
+      POSTGRES_DB: chatwoot_dev
+    volumes:
+      - postgres_dev:/var/lib/postgresql/data
+    networks:
+      - cw_dev
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - cw_dev
+
+volumes:
+  postgres_dev:
+
+networks:
+  cw_dev:
+    driver: bridge
